@@ -15,45 +15,17 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Create WWW Folder and Move Files
-        run: |
-          mkdir -p www
-          find . -maxdepth 1 -type f ! -name 'package*' ! -name 'README*' -exec mv {} www/ \;
-          find . -maxdepth 1 -type d ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' ! -name 'www' -exec mv {} www/ \;
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Build APK from HTML
+        uses: darkshredder/web-to-app-action@v1.1.2
         with:
-          node-version: 20
+          build-folder-path: "."
+          app-name: "VakzaRush"
 
-      - name: Install Dependencies
-        run: |
-          npm init -y
-          npm install @capacitor/core @capacitor/cli @capacitor/android
-
-      - name: Initialize Capacitor
-        run: |
-          npx cap init "VakzaRush" "com.vakzarush.app" --web-dir=www
-
-      - name: Add Android Platform
-        run: npx cap add android
-
-      - name: Set up JDK 21
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'zulu'
-          java-version: '21'
-
-      - name: Build APK via Gradle
-        run: |
-          cd android
-          ./gradlew assembleDebug
-
-      - name: Create Release and Upload APK
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v2.0.${{ github.run_number }}
-          name: Release v2.0.${{ github.run_number }}
-          files: android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v3.0.${{ github.run_number }}
+          name: Release v3.0.${{ github.run_number }}
+          files: apk/app-release-unsigned.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

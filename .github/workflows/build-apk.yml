@@ -1,0 +1,26 @@
+name: Convert HTML to APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Build APK
+        uses: darkshredder/web-to-app-action@main
+        with:
+          build-folder-path: "."
+          app-name: "VakzaRushApp"
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: my-android-app
+          path: apk/

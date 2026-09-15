@@ -16,7 +16,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-size: 20
+          node-version: 20
 
       - name: Install Cordova
         run: npm install -g cordova
@@ -30,7 +30,6 @@ jobs:
       - name: Copy HTML Files to App
         run: |
           rm -rf myApp/www/*
-          # Копируем всё содержимое вашего репозитория (кроме папки самого cordova-проекта и скрытых файлов) в папку сборки
           rsync -av --exclude='myApp' --exclude='.git' --exclude='.github' ./ myApp/www/
 
       - name: Set up JDK 17
@@ -44,8 +43,12 @@ jobs:
           cd myApp
           cordova build android --device
 
-      - name: Upload APK Artifact
-        uses: actions/upload-artifact@v4
+      - name: Create Release and Upload APK
+        uses: softprops/action-gh-release@v2
         with:
-          name: VakzaRush-APK
-          path: myApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v1.0.${{ github.run_number }}
+          name: Release v1.0.${{ github.run_number }}
+          files: myApp/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+

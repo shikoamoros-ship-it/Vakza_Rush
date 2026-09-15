@@ -9,12 +9,19 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # Явно даем права на запись контента и релизов:
     permissions:
       contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
+      - name: Create WWW Folder and Move Files
+        run: |
+          mkdir -p www
+          # Переносим index.html и все сопутствующие файлы в папку www для сборщика
+          find . -maxdepth 1 -type f ! -name 'package*' ! -name 'README*' -exec mv {} www/ \;
+          # Переносим другие папки, если они есть (кроме системных гитхаба)
+          find . -maxdepth 1 -type d ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' ! -name 'www' -exec mv {} www/ \;
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -28,7 +35,7 @@ jobs:
 
       - name: Initialize Capacitor
         run: |
-          npx cap init "Vakza Rush" "com.vakzarush.app" --web-dir=.
+          npx cap init "Vakza Rush" "com.vakzarush.app" --web-dir=www
 
       - name: Add Android Platform
         run: npx cap add android
